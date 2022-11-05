@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32630.192
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DS2022_30442_Presecan_Alexandru_Assignment_1_Backend", "DS2022_30442_Presecan_Alexandru_Assignment_1_Backend.csproj", "{AD639AE1-30B8-4AE2-AA99-495F88CC449D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AD639AE1-30B8-4AE2-AA99-495F88CC449D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD639AE1-30B8-4AE2-AA99-495F88CC449D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD639AE1-30B8-4AE2-AA99-495F88CC449D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD639AE1-30B8-4AE2-AA99-495F88CC449D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EB99BB0D-D3A5-4AA7-BDC1-3A11224A3112}
+	EndGlobalSection
+EndGlobal
