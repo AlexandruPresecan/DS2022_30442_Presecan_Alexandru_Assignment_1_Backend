@@ -16,6 +16,7 @@ namespace DS2022_30442_Presecan_Alexandru_Assignment_1.Controllers
             _energyConsumptionService = energyConsumptionService;
         }
 
+        [Authorize]
         [HttpGet]
         public IActionResult GetEnergyConsumptions(int? deviceId, DateTime? date)
         {
@@ -35,6 +36,7 @@ namespace DS2022_30442_Presecan_Alexandru_Assignment_1.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public IActionResult GetEnergyConsumptionById(int id)
         {

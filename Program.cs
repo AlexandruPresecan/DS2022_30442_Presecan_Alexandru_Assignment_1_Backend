@@ -1,6 +1,8 @@
 using DS2022_30442_Presecan_Alexandru_Assignment_1.Data;
 using DS2022_30442_Presecan_Alexandru_Assignment_1.Services;
+using DS2022_30442_Presecan_Alexandru_Assignment_1_Backend;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -53,6 +55,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
 app.MapControllerRoute(
     name: "default",
@@ -62,6 +65,8 @@ app.MapFallbackToFile("index.html"); ;
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+
+app.Services.CreateScope().ServiceProvider.GetRequiredService<DataContext>().Database.Migrate();
+AdminInitializer.Initialize(app.Services.CreateScope().ServiceProvider);
 
 app.Run();

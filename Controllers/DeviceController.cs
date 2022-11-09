@@ -16,12 +16,24 @@ namespace DS2022_30442_Presecan_Alexandru_Assignment_1.Controllers
             _deviceService = deviceService;
         }
 
+        [Authorize]
         [HttpGet]
-        public IActionResult GetDevices()
+        public IActionResult GetDevices(int? userId)
         {
-            return Ok(_deviceService.GetDevices());
+            try
+            {
+                if (userId != null)
+                    return Ok(_deviceService.GetDevicesByUserId((int)userId));
+
+                return Ok(_deviceService.GetDevices());
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public IActionResult GetDeviceById(int id)
         {
@@ -76,6 +88,20 @@ namespace DS2022_30442_Presecan_Alexandru_Assignment_1.Controllers
                 return BadRequest(ex.Message);
             }
 
+        }
+
+        [Authorize]
+        [HttpPut("mapping")]
+        public IActionResult UserDeviceMapping(int? userId, int deviceId)
+        {
+            try
+            {
+                return Ok(_deviceService.UserDeviceMapping(userId, deviceId));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

@@ -26,13 +26,13 @@ namespace DS2022_30442_Presecan_Alexandru_Assignment_1.Services
             .Where(energyConsumption => energyConsumption.DeviceId == deviceId && energyConsumption.TimeStamp?.Date == date.Date)
             .OrderBy(energyConsumptioin => energyConsumptioin.TimeStamp);
 
-        public EnergyConsumptionDTO GetEnergyConsumptionById(int id) => 
+        public EnergyConsumptionDTO? GetEnergyConsumptionById(int id) => 
             GetEnergyConsumptions()
-            .First(energyConsumption => energyConsumption.Id == id);
+            .FirstOrDefault(energyConsumption => energyConsumption.Id == id);
 
-        public EnergyConsumptionDTO CreateEnergyConsumption(EnergyConsumptionDTO energyConsumptionDTO)
+        public EnergyConsumptionDTO? CreateEnergyConsumption(EnergyConsumptionDTO energyConsumptionDTO)
         {
-            if (_db.Devices.First(device => device.Id == energyConsumptionDTO.DeviceId) == null)
+            if (_db.Devices.FirstOrDefault(device => device.Id == energyConsumptionDTO.DeviceId) == null)
                 throw new Exception("Device not found");
 
             EnergyConsumption energyConsumption = new EnergyConsumption()
@@ -48,14 +48,14 @@ namespace DS2022_30442_Presecan_Alexandru_Assignment_1.Services
             return GetEnergyConsumptionById(energyConsumption.Id);
         }
 
-        public EnergyConsumptionDTO UpdateEnergyConsumption(int id, EnergyConsumptionDTO energyConsumptionDTO)
+        public EnergyConsumptionDTO? UpdateEnergyConsumption(int id, EnergyConsumptionDTO energyConsumptionDTO)
         {
-            EnergyConsumption energyConsumption = _db.EnergyConsumptions.First(energyConsumption => energyConsumption.Id == id);
+            EnergyConsumption? energyConsumption = _db.EnergyConsumptions.FirstOrDefault(energyConsumption => energyConsumption.Id == id);
 
             if (energyConsumption == null)
                 throw new Exception("Energy Consumption not found");
 
-            if (_db.Devices.First(device => device.Id == energyConsumptionDTO.DeviceId) == null)
+            if (_db.Devices.FirstOrDefault(device => device.Id == energyConsumptionDTO.DeviceId) == null)
                 throw new Exception("Device not found");
 
             energyConsumption.TimeStamp = energyConsumptionDTO.TimeStamp;
@@ -70,7 +70,7 @@ namespace DS2022_30442_Presecan_Alexandru_Assignment_1.Services
 
         public string DeleteEnergyConsumption(int id)
         {
-            EnergyConsumption energyConsumption = _db.EnergyConsumptions.First(energyConsumption => energyConsumption.Id == id);
+            EnergyConsumption? energyConsumption = _db.EnergyConsumptions.FirstOrDefault(energyConsumption => energyConsumption.Id == id);
 
             if (energyConsumption == null)
                 throw new Exception("Energy Consumption not found");

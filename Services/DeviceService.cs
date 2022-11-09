@@ -8,10 +8,12 @@ namespace DS2022_30442_Presecan_Alexandru_Assignment_1.Services
     public class DeviceService
     {
         private readonly DataContext _db;
+        private readonly EnergyConsumptionService _energyConsumptionService;
 
-        public DeviceService(DataContext db)
+        public DeviceService(DataContext db, EnergyConsumptionService energyConsumptionService)
         {
             _db = db;
+            _energyConsumptionService = energyConsumptionService;
         }
 
         public IEnumerable<DeviceDTO> GetDevices() => 
@@ -23,15 +25,12 @@ namespace DS2022_30442_Presecan_Alexandru_Assignment_1.Services
             GetDevices()
             .Where(device => device.UserId == userId);
 
-        public DeviceDTO GetDeviceById(int id) => 
+        public DeviceDTO? GetDeviceById(int id) => 
             GetDevices()
-            .First(device => device.Id == id);
+            .FirstOrDefault(device => device.Id == id);
 
-        public DeviceDTO CreateDevice(DeviceDTO deviceDTO)
+        public DeviceDTO? CreateDevice(DeviceDTO deviceDTO)
         {
-            if (_db.Users.First(user => user.Id == deviceDTO.UserId) == null)
-                throw new Exception("User not found");
-
             Device device = new Device()
             {
                 UserId = deviceDTO.UserId,
@@ -46,15 +45,12 @@ namespace DS2022_30442_Presecan_Alexandru_Assignment_1.Services
             return GetDeviceById(device.Id);
         }
 
-        public DeviceDTO UpdateDevice(int id, DeviceDTO deviceDTO)
+        public DeviceDTO? UpdateDevice(int id, DeviceDTO deviceDTO)
         {
-            Device device = _db.Devices.First(device => device.Id == id);
+            Device? device = _db.Devices.FirstOrDefault(device => device.Id == id);
 
             if (device == null)
                 throw new Exception("Device not found");
-
-            if (_db.Users.First(user => user.Id == deviceDTO.UserId) == null)
-                throw new Exception("User not found");
 
             device.UserId = deviceDTO.UserId;
             device.Address = deviceDTO.Address;
@@ -69,15 +65,31 @@ namespace DS2022_30442_Presecan_Alexandru_Assignment_1.Services
 
         public string DeleteDevice(int id)
         {
-            Device device = _db.Devices.First(device => device.Id == id);
+            Device? device = _db.Devices.FirstOrDefault(device => device.Id == id);
 
             if (device == null)
                 throw new Exception("Device not found");
 
+            device.EnergyConsumptions?.ToList().ForEach(energyConsumption => _energyConsumptionService.DeleteEnergyConsumption(energyConsumption.Id));
             _db.Devices.Remove(device);
             _db.SaveChanges();
 
             return "Device deleted";
+        }
+
+        public string UserDeviceMapping(int? userId, int deviceId)
+        {
+            Device? device = _db.Devices.FirstOrDefault(device => device.Id == deviceId);
+
+            if (device == null)
+                throw new Exception("Device not found");
+
+            device.UserId = userId;
+
+            _db.Devices.Update(device);
+            _db.SaveChanges();
+
+            return "User-Device mapping added";
         }
     }
 }

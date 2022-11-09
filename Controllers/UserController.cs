@@ -1,4 +1,5 @@
 ﻿using DS2022_30442_Presecan_Alexandru_Assignment_1.DTOs;
+using DS2022_30442_Presecan_Alexandru_Assignment_1.Enums;
 using DS2022_30442_Presecan_Alexandru_Assignment_1.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,12 +17,14 @@ namespace DS2022_30442_Presecan_Alexandru_Assignment_1.Controllers
             _userService = userService;
         }
 
+        [Authorize]
         [HttpGet]
         public IActionResult GetUsers()
         {
             return Ok(_userService.GetUsers());
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public IActionResult GetUserById(int id)
         {
@@ -40,6 +43,9 @@ namespace DS2022_30442_Presecan_Alexandru_Assignment_1.Controllers
         {
             try
             {
+                if (User.FindFirst("Role")?.Value == Role.Client.ToString())
+                    user.Role = Role.Client;
+
                 return Ok(_userService.CreateUser(user));
             }
             catch (Exception ex)
@@ -54,7 +60,12 @@ namespace DS2022_30442_Presecan_Alexandru_Assignment_1.Controllers
         {
             try
             {
-                return Ok(_userService.UpdateUser(id, user));
+                if (User.FindFirst("Role")?.Value == Role.Client.ToString())
+                    user.Role = Role.Client;
+
+                bool changePassword = user.NewPassword != "";
+
+                return Ok(_userService.UpdateUser(id, user, changePassword));
             }
             catch (Exception ex)
             {
@@ -78,7 +89,7 @@ namespace DS2022_30442_Presecan_Alexandru_Assignment_1.Controllers
         }
 
         [HttpPost("authenticate")]
-        public IActionResult AuhenticateUser([FromBody] UserDTO user)
+        public IActionResult AuthenticateUser([FromBody] UserDTO user)
         {
             try
             {
@@ -88,6 +99,23 @@ namespace DS2022_30442_Presecan_Alexandru_Assignment_1.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [Authorize]
+        [HttpGet("isAuthenticated")]
+        public IActionResult IsAuthenticated()
+        {
+            return Ok(true);
+        }
+
+        [Authorize]
+        [HttpGet("isAdminAuthenticated")]
+        public IActionResult IsAdminAuthenticated()
+        {
+            if (User.FindFirst("Role")?.Value == Role.Admin.ToString())
+                return Ok(true);
+
+            return BadRequest("User does not have admin privileges");
         }
     }
 }

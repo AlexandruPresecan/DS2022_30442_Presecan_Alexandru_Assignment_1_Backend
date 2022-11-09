@@ -18,7 +18,7 @@ namespace DS2022_30442_Presecan_Alexandru_Assignment_1.Models
         public double? MaximumHourlyEnergyConsumption { get; set; }
 
         [ForeignKey("User")]
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
         public User? User { get; set; }
 
         public ICollection<EnergyConsumption>? EnergyConsumptions { get; set; }
