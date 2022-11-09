@@ -139,7 +139,7 @@ namespace DS2022_30442_Presecan_Alexandru_Assignment_1.Services
 
         public string DeleteUser(int id)
         {
-            User? user = _db.Users.FirstOrDefault(user => user.Id == id);
+            User? user = _db.Users.Include(user => user.Devices).FirstOrDefault(user => user.Id == id);
 
             if (user == null)
                 throw new Exception("User not found");

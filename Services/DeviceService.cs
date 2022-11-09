@@ -65,7 +65,7 @@ namespace DS2022_30442_Presecan_Alexandru_Assignment_1.Services
 
         public string DeleteDevice(int id)
         {
-            Device? device = _db.Devices.FirstOrDefault(device => device.Id == id);
+            Device? device = _db.Devices.Include(device => device.EnergyConsumptions).FirstOrDefault(device => device.Id == id);
 
             if (device == null)
                 throw new Exception("Device not found");
