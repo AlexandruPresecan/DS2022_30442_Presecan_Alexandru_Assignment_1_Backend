@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  database:
+    container_name: database
+    image: postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=ds
+    ports:
+      - 5434:5432
+    networks:
+      - ds
+  backend:
+    container_name: backend
+    restart: unless-stopped
+    image: backend
+    ports:
+      - 7184:7184
+    environment:
+      - ASPNETCORE_ENVIRONMENT=LocalDocker
+      - ASPNETCORE_URLS=http://+:7184
+    depends_on:
+      - database
+    networks:
+      - ds
+  frontend:
+    container_name: frontend
+    restart: unless-stopped
+    image: frontend
+    ports:
+      - 42000:80
+    depends_on:
+      - backend
+    networks:
+      - ds
+      
+networks:
+  ds:
+    driver: bridge
