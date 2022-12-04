@@ -21,6 +21,9 @@ namespace DS2022_30442_Presecan_Alexandru_Assignment_1.Services
             .Include(device => device.EnergyConsumptions)
             .Select(device => new DeviceDTO(device));
 
+        public int GetRandomDeviceId() =>
+            _db.Devices.ToList()[new Random().Next(_db.Devices.Count())].Id;
+
         public IEnumerable<DeviceDTO> GetDevicesByUserId(int userId) => 
             GetDevices()
             .Where(device => device.UserId == userId);

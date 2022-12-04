@@ -61,7 +61,8 @@ namespace DS2022_30442_Presecan_Alexandru_Assignment_1.Services
                         new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
                         new Claim(JwtRegisteredClaimNames.Email, user.Email),
                         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                        new Claim("Role", user.Role.ToString())
+                        new Claim("Role", user.Role.ToString()),
+                        new Claim("UserId", user.Id.ToString())
                     }
                 ),
                 Expires = DateTime.UtcNow.AddMinutes(10),

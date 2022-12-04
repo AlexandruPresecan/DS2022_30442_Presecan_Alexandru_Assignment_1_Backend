@@ -1,6 +1,7 @@
 using DS2022_30442_Presecan_Alexandru_Assignment_1.Data;
 using DS2022_30442_Presecan_Alexandru_Assignment_1.Services;
 using DS2022_30442_Presecan_Alexandru_Assignment_1_Backend;
+using DS2022_30442_Presecan_Alexandru_Assignment_1_Backend.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -28,6 +29,24 @@ builder.Services
             ValidateLifetime = false,
             ValidateIssuerSigningKey = true
         };
+        o.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+
+                if (!string.IsNullOrEmpty(accessToken) && (path.StartsWithSegments("/notify")))
+                    context.Token = accessToken;
+
+                return Task.CompletedTask;
+            },
+            OnAuthenticationFailed = context =>
+            {
+                var catchException = context.Exception;
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services
@@ -37,11 +56,16 @@ builder.Services
     .AddScoped<UserService>()
     .AddScoped<DeviceService>()
     .AddScoped<EnergyConsumptionService>()
+    .AddScoped<MessageConsumer>()
     .AddAuthorization()
     .AddControllersWithViews()
     .AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
+builder.Services
+    .AddSignalR();
+
 var app = builder.Build();
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -55,7 +79,14 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseFileServer();
+app.UseCors(x => x.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod().AllowCredentials());
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<NotifyHub>("/notify");
+});
 
 app.MapControllerRoute(
     name: "default",
@@ -63,10 +94,9 @@ app.MapControllerRoute(
 
 app.MapFallbackToFile("index.html"); ;
 
-app.UseAuthentication();
-app.UseAuthorization();
-
 app.Services.CreateScope().ServiceProvider.GetRequiredService<DataContext>().Database.Migrate();
+app.Services.CreateScope().ServiceProvider.GetRequiredService<MessageConsumer>().Run();
+
 AdminInitializer.Initialize(app.Services.CreateScope().ServiceProvider);
 
 app.Run();

@@ -34,6 +34,20 @@ namespace DS2022_30442_Presecan_Alexandru_Assignment_1.Controllers
         }
 
         [Authorize]
+        [HttpGet("getRandomDeviceId")]
+        public IActionResult GetRandomDeviceId()
+        {
+            try
+            {
+                return Ok(_deviceService.GetRandomDeviceId());
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Authorize]
         [HttpGet("{id}")]
         public IActionResult GetDeviceById(int id)
         {

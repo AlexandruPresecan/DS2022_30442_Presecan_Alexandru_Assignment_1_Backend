@@ -8,6 +8,7 @@ namespace DS2022_30442_Presecan_Alexandru_Assignment_1.DTOs
         public string? Description { get; set; }
         public string? Address { get; set; }
         public double? MaximumHourlyEnergyConsumption { get; set; }
+        public double? CurrentHourlyEnergyConsumption { get; set; }
         public int? UserId { get; set; }
         public IEnumerable<EnergyConsumptionDTO>? EnergyConsumptions { get; set; }
         

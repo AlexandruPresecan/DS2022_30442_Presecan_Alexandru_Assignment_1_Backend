@@ -1,16 +1,20 @@
 ﻿using DS2022_30442_Presecan_Alexandru_Assignment_1.Data;
 using DS2022_30442_Presecan_Alexandru_Assignment_1.DTOs;
 using DS2022_30442_Presecan_Alexandru_Assignment_1.Models;
+using DS2022_30442_Presecan_Alexandru_Assignment_1_Backend.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 namespace DS2022_30442_Presecan_Alexandru_Assignment_1.Services
 {
     public class EnergyConsumptionService
     {
         private readonly DataContext _db;
+        private readonly IHubContext<NotifyHub> _notifyHubContext;
 
-        public EnergyConsumptionService(DataContext db)
+        public EnergyConsumptionService(DataContext db, IHubContext<NotifyHub> notifyHubContext)
         {
             _db = db;
+            _notifyHubContext = notifyHubContext;
         }
 
         public IEnumerable<EnergyConsumptionDTO> GetEnergyConsumptions() => 
@@ -30,9 +34,16 @@ namespace DS2022_30442_Presecan_Alexandru_Assignment_1.Services
             GetEnergyConsumptions()
             .FirstOrDefault(energyConsumption => energyConsumption.Id == id);
 
+        public double GetCurrentHourlyEnergyConsumption(int deviceId) =>
+            GetEnergyConsumptionsByDeviceId(deviceId, DateTime.Now)
+            .Where(energyConsumption => energyConsumption.TimeStamp?.Hour == DateTime.Now.Hour)
+            .Sum(energyConsumption => energyConsumption.EnergyConsumptionValue);
+
         public EnergyConsumptionDTO? CreateEnergyConsumption(EnergyConsumptionDTO energyConsumptionDTO)
         {
-            if (_db.Devices.FirstOrDefault(device => device.Id == energyConsumptionDTO.DeviceId) == null)
+            Device? device = _db.Devices.FirstOrDefault(device => device.Id == energyConsumptionDTO.DeviceId);
+
+            if (device == null)
                 throw new Exception("Device not found");
 
             EnergyConsumption energyConsumption = new EnergyConsumption()
@@ -44,6 +55,15 @@ namespace DS2022_30442_Presecan_Alexandru_Assignment_1.Services
 
             _db.EnergyConsumptions.Add(energyConsumption);
             _db.SaveChanges();
+
+            double currentHourlyEnergyConsumption = GetCurrentHourlyEnergyConsumption(device.Id);
+
+            if (device.UserId != null && currentHourlyEnergyConsumption > device.MaximumHourlyEnergyConsumption)
+            {
+                DeviceDTO data = new DeviceDTO(device);
+                data.CurrentHourlyEnergyConsumption = currentHourlyEnergyConsumption;
+                NotifyHub.Notify(_notifyHubContext, device.UserId.ToString(), data);
+            }
 
             return GetEnergyConsumptionById(energyConsumption.Id);
         }
