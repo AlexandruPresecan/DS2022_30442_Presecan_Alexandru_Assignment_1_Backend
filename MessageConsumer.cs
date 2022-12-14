@@ -18,7 +18,8 @@ namespace DS2022_30442_Presecan_Alexandru_Assignment_1_Backend
 
         public void Run()
         {
-            ConnectionFactory factory = new ConnectionFactory() { HostName = "localhost" };
+            ConnectionFactory factory = new ConnectionFactory() { HostName = "rabbitmq", UserName = "guest", Password = "guest", Ssl = { ServerName = "rabbitmq", Enabled = false } };
+            //ConnectionFactory factory = new ConnectionFactory() { HostName = "localhost", UserName = "guest", Password = "guest" };
             IConnection connection = factory.CreateConnection();
             IModel channel = connection.CreateModel();
 
