@@ -24,6 +24,7 @@ services:
       - ASPNETCORE_URLS=http://+:7184
     depends_on:
       - database
+      - rabbitmq
     networks:
       - ds
   frontend:
@@ -31,12 +32,24 @@ services:
     restart: unless-stopped
     image: frontend
     ports:
-      - 42000:80
+      - 4200:80
     depends_on:
       - backend
     networks:
       - ds
-      
+  rabbitmq:
+    image: rabbitmq:3-management
+    hostname: rabbitmq
+    container_name: rabbitmq
+    ports:
+        - 5672:5672
+        - 15672:15672
+    volumes:
+        - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+        - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    networks:
+        - ds
+        
 networks:
   ds:
     driver: bridge
