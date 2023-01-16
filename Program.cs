@@ -5,12 +5,21 @@ using DS2022_30442_Presecan_Alexandru_Assignment_1_Backend.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Net;
 using System.Text;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.WebHost.UseKestrel(options =>
+{
+    options.Listen(IPAddress.Any, 443, listenOptions =>
+    {
+        listenOptions.UseHttps("/https/backend.pfx", "pass");
+    });
+});
 
 builder.Services
     .AddAuthentication(options =>
@@ -61,8 +70,7 @@ builder.Services
     .AddControllersWithViews()
     .AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
-builder.Services
-    .AddSignalR();
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
